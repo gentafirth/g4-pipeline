@@ -1,0 +1,10 @@
+name: g4hunter
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python
+  - biopython
+  - numpy
+  - matplotlib
