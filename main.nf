@@ -52,7 +52,7 @@ workflow {
       //   genomes/K_pneumoniae/GCF_xxx/…/GCF_xxx_ASM…_genomic.fna
       // so three levels up is the GCF_xxx folder:
       //
-      def ref = fasta.getParent().getParent().getParent().getParent().getName()
+      def ref = fasta.getParent().getParent().getName()
       tuple(fasta, ref)
     }
 
