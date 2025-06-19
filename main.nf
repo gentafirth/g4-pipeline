@@ -2,12 +2,9 @@
 nextflow.enable.dsl=2
 
 process runG4Hunter {
-    tag "running G4Hunter.py on each genome"
-    cache 'lenient' // Allowing for timestamp leniency. Look into how this works. This is really weird. I can't think of what is updating an input file time stamp
-    conda 'g4hunter_env.yml'
 
     publishDir "results/${fasta_file.baseName}_${params.thresh_value}", mode: 'copy'
-
+    
     input:
         tuple path(fasta_file), val(ref)
 
@@ -18,20 +15,20 @@ process runG4Hunter {
     script:
     """
     echo "Running G4Hunter on ${fasta_file}"
-    python ${workflow.projectDir}/${params.g4script} -i ${fasta_file} -o . -w ${params.window} -s ${params.thresh_value}
+    python ${params.g4script} -i ${fasta_file} -o . -w ${params.window} -s ${params.thresh_value}
     mv Results_*/*-Merged.txt .
     rm -r Results_*/
-    python ${workflow.projectDir}/${params.g4dataproc} -w ${params.window} -t ${params.thresh_value} -f *-Merged.txt -g ${fasta_file} -r ${ref}> results_${ref}.csv
+    python ${params.g4dataproc} -w ${params.window} -t ${params.thresh_value} -f *-Merged.txt -g ${fasta_file} -r ${ref}> results_${ref}.csv
     """
 }
 
 process mergeResults {
-    tag "merging results.csv files and appending strain"
 
     publishDir "results/", mode: 'copy'
 
     input:
     path result_files
+    path merge_script
 
     output:
     path "${params.species}_results.csv"
@@ -39,7 +36,7 @@ process mergeResults {
     script:
     """
     echo "${result_files}"
-    python ${workflow.projectDir}/${params.g4mergenappend} -l "${result_files}" -o ${params.species}_results.csv
+    python ${merge_script} -l "${result_files}" -o ${params.species}_results.csv
     """
 }
 workflow {
@@ -58,8 +55,9 @@ workflow {
 
     // genomes_ch.view()
     results = runG4Hunter(genomes_ch)
-
-    mergeResults(results.g4summary_ch.collect())
+    
+    merge_script = Channel.fromPath(params.g4mergenappend, checkIfExists: true) // Manually parsing python script
+    mergeResults(results.g4summary_ch.collect(), merge_script)
 
     // results.g4summary_ch.view()
 

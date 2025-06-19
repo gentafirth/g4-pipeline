@@ -1,4 +1,4 @@
-name: g4hunter
+name: g4hunter_env
 channels:
   - conda-forge
   - bioconda
