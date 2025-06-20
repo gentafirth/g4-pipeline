@@ -1,26 +1,7 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl=2
 
-process runG4Hunter {
 
-    publishDir "results/${fasta_file.baseName}_${params.thresh_value}", mode: 'copy'
-    
-    input:
-        tuple path(fasta_file), val(ref)
-
-    output:
-        path "GC*.txt", emit: g4results_ch                      // Published by publishDir
-        path "results_${ref}.csv", emit: g4summary_ch, hidden: true    // Not published by publishDir
-
-    script:
-    """
-    echo "Running G4Hunter on ${fasta_file}"
-    python ${params.g4script} -i ${fasta_file} -o . -w ${params.window} -s ${params.thresh_value}
-    mv Results_*/*-Merged.txt .
-    rm -r Results_*/
-    python ${params.g4dataproc} -w ${params.window} -t ${params.thresh_value} -f *-Merged.txt -g ${fasta_file} -r ${ref}> results_${ref}.csv
-    """
-}
 
 process mergeResults {
 
@@ -39,6 +20,9 @@ process mergeResults {
     python ${merge_script} -l "${result_files}" -o ${params.species}_results.csv
     """
 }
+
+include { runG4Hunter } from 'g4hunter/runG4Hunter'
+
 workflow {
 
     genomes_ch = Channel
@@ -46,7 +30,7 @@ workflow {
         .map { fasta ->
       //
       // In your tree the fasta is at:
-      //   genomes/K_pneumoniae/GCF_xxx/…/GCF_xxx_ASM…_genomic.fna
+      // genomes/K_pneumoniae/GCF_xxx/…/GCF_xxx_ASM…_genomic.fna
       // so three levels up is the GCF_xxx folder:
       //
       def ref = fasta.getParent().getName()
