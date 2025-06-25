@@ -7,7 +7,8 @@ nextflow.enable.dsl=2
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { G4PIPELINE } from './workflows/g4pipeline'
+include { PREDICT_G4    } from './workflows/predict_g4'
+include { DATA_ANALYSIS } from './workflows/data_analysis.nf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -32,5 +33,12 @@ workflow {
     //
     // WORKFLOW: Run G4Hunter pipeline
     //
-    G4PIPELINE ( genomes_ch )
+    PREDICT_G4 ( genomes_ch )
+    
+    //
+    // WORKFLOW: Run Data Analysis (Optional)
+    //
+    if ( params.run_analysis ) {
+        DATA_ANALYSIS ( PREDICT_G4.out.merged_results )
+    }
 }

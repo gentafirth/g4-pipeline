@@ -4,16 +4,16 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { G4HUNTER      } from '../modules/g4pipeline/g4hunter/main'
-include { MERGE_RESULTS } from '../modules/g4pipeline/merge_results/main'
+include { G4HUNTER      } from '../modules/predict_g4/g4hunter/main'
+include { MERGE_RESULTS } from '../modules/predict_g4/merge_results/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    WORKFLOW: G4PIPELINE
+    WORKFLOW: PREDICT_G4
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-workflow G4PIPELINE {
+workflow PREDICT_G4 {
     
     take:
     genomes // channel: [ path(fasta), val(ref) ]
