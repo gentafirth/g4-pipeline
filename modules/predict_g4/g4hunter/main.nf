@@ -2,7 +2,7 @@ process G4HUNTER {
     tag "G4Hunter: ${ref}"
     label 'process_medium'
     
-    publishDir "${params.outdir}/${fasta_file.baseName}_${params.thresh_value}", mode: 'copy', pattern: "GC*.txt"
+    publishDir "${params.outdir}/${fasta_file.baseName}_${params.thresh_value}", mode: 'copy', pattern: "GC*.bed"
 
     input:
     tuple path(fasta_file), val(ref)

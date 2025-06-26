@@ -4,7 +4,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { METAPLOT } from '../modules/data_analysis/metaplot/main'
+include { PLOTTING } from '../modules/data_analysis/plotting/main'
 // include { MERGE_RESULTS } from '../modules/g4pipeline/merge_results/main'
 
 /*
@@ -16,14 +16,17 @@ include { METAPLOT } from '../modules/data_analysis/metaplot/main'
 workflow DATA_ANALYSIS {
     
     take:
-    merged_results
+    putative_g4_bed
     
     main:
     //
     // MODULE: Plot
     //
-    METAPLOT (merged_results)
+    analysis_script = Channel.fromPath(params.analysisscript, checkIfExists: true)
+    PLOTTING (
+        putative_g4_bed,
+        analysis_script)
     
     emit:
-    outputtxt = METAPLOT.out.outputtxt
+    outputtxt = PLOTTING.out.outputtxt
 }

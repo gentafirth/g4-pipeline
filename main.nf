@@ -39,6 +39,6 @@ workflow {
     // WORKFLOW: Run Data Analysis (Optional)
     //
     if ( params.run_analysis ) {
-        DATA_ANALYSIS ( PREDICT_G4.out.merged_results )
+        DATA_ANALYSIS ( PREDICT_G4.out.g4hunterbed )
     }
 }
