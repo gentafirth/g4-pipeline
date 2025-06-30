@@ -1,5 +1,5 @@
-process MERGE_RESULTS {
-    tag "Merging G4Hunter results"
+process MERGE_SUMMARIES {
+    tag "Merging G4Hunter summary results"
     label 'process_low'
     
     publishDir "${params.outdir}", mode: 'copy'
