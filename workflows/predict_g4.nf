@@ -16,7 +16,7 @@ include { MERGE_RESULTS } from '../modules/predict_g4/merge_results/main'
 workflow PREDICT_G4 {
     
     take:
-    genomes // channel: [ path(fasta), val(ref) ]
+    genomes // channel: [ path(fasta), path(gff), val(ref) ]
     
     main:
     

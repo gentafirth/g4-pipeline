@@ -13,5 +13,6 @@ option_list <- list(
 opt <- parse_args(OptionParser(option_list = option_list))
 
 input_file <- opt$input
+
 cat("Input file is:", input_file, "\n")
 

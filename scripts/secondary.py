@@ -78,7 +78,7 @@ def main():
 
     output_stats[NPQS] = process_txt_file(args.file)
 
-    # Example: calculate percentage GC and frequency of PQS
+    # Calculate percentage GC and frequency of PQS
     if output_stats[BP] > 0:
         output_stats[PGC] = (output_stats[NGC] / output_stats[BP]) * 100
         output_stats[FRQ] = 1000 * output_stats[NPQS] / output_stats[BP]

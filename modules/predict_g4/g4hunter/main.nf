@@ -5,12 +5,12 @@ process G4HUNTER {
     publishDir "${params.outdir}/${fasta_file.baseName}_${params.thresh_value}", mode: 'copy', pattern: "GC*.bed"
 
     input:
-    tuple path(fasta_file), val(ref)
+    tuple path(fasta_file), path(gff_file), val(ref)
 
     output:
     path "GC*.txt", emit: g4results
     path "results_${ref}.csv", emit: g4summary
-    path "GC_${ref}.bed", emit: g4hunterbed
+    tuple path("GC_${ref}.bed"), path(gff_file), val(ref), emit: g4hunterbed
 
     when:
     task.ext.when == null || task.ext.when

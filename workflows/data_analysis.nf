@@ -16,15 +16,17 @@ include { PLOTTING } from '../modules/data_analysis/plotting/main'
 workflow DATA_ANALYSIS {
     
     take:
-    putative_g4_bed
+
+    bed_gff_pairs // channel: [ path(bed), path(gff), val(ref) ]
     
     main:
+
     //
     // MODULE: Plot
     //
     analysis_script = Channel.fromPath(params.analysisscript, checkIfExists: true)
     PLOTTING (
-        putative_g4_bed,
+        bed_gff_pairs,
         analysis_script)
     
     emit:

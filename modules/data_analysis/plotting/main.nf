@@ -1,17 +1,19 @@
 process PLOTTING {
-    tag "Analysing"
+    tag "Analysing ${ref}"
     label 'process_medium'
 
     input:
-    path putative_g4_bed // Path to G4HUNTER prediction results
+    tuple path(putative_g4_bed), path(gff_file), val(ref) // BED file with paired GFF file
     path analysis_script // Path to R script
 
     output:
-    path "output.txt", emit: outputtxt
+    path "output_${ref}.txt", emit: outputtxt
 
     script:
+    def gff_arg = gff_file && gff_file.getName() != 'null' ? "-g ${gff_file}" : ""
     """
+    # Run analysis with BED file and GFF file
     Rscript ${analysis_script} -i ${putative_g4_bed}
-    echo "new test" > output.txt
+    echo "Analysis completed for ${ref} with BED: ${putative_g4_bed}" > output_${ref}.txt
     """
 }
