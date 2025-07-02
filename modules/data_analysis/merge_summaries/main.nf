@@ -18,7 +18,7 @@ process MERGE_SUMMARIES {
     def args = task.ext.args ?: ''
     """
     echo "Processing files: ${result_files}"
-    python ${merge_script} -l "${result_files}" -o ${params.species}_results.csv ${args}
+    python '${merge_script}' -l "${result_files}" -o ${params.species}_results.csv ${args}
     """
 
     stub:

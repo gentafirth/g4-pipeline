@@ -10,7 +10,7 @@ process G4HUNTER {
     output:
     path "GC*.txt", emit: g4results
     path "results_${ref}.csv", emit: g4summary
-    tuple path("GC_${ref}.bed"), path(gff_file), val(ref), emit: g4hunterbed
+    tuple path("GC_${ref}.bed"), path(gff_file), val(ref), emit: g4hunterbed // Change this variable name
 
     when:
     task.ext.when == null || task.ext.when
@@ -20,7 +20,7 @@ process G4HUNTER {
 
     """
     echo "Running G4Hunter on ${fasta_file}"
-    python ${params.g4script} \\
+    python '${params.g4script}' \\
         -i ${fasta_file} \\
         -o . \\
         -w ${params.window} \\
@@ -30,14 +30,14 @@ process G4HUNTER {
     mv Results_*/*-Merged.txt .
     rm -r Results_*/
     
-    python ${params.g4dataproc} \\
+    python '${params.g4dataproc}' \\
         -w ${params.window} \\
         -t ${params.thresh_value} \\
         -f *-Merged.txt \\
         -g ${fasta_file} \\
         -r ${ref} > results_${ref}.csv
     
-    python ${params.g4hunter2bed} \\
+    python '${params.g4hunter2bed}' \\
         --input *-Merged.txt \\
         --output GC_${ref}.bed
     """

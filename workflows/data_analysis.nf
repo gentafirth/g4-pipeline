@@ -4,8 +4,9 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { PLOTTING } from '../modules/data_analysis/plotting/main'
-include { MERGE_SUMMARIES } from '../modules/data_analysis/merge_summaries/main'
+include { PLOTTING          } from '../modules/data_analysis/plotting/main'
+include { MERGE_SUMMARIES   } from '../modules/data_analysis/merge_summaries/main'
+include { CLUSTER_GENES     } from '../modules/data_analysis/cluster_genes/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -27,16 +28,22 @@ workflow DATA_ANALYSIS {
     merge_script = Channel.fromPath(params.g4mergenappend, checkIfExists: true)
     MERGE_SUMMARIES ( 
         summary_csvs.collect(), 
-        merge_script 
+        merge_script
     )
+
+    //
+    // MODULE: Plot
+    //
+    bed_gff_pairs.collect().view()
+    CLUSTER_GENES ( bed_gff_pairs.collect() )
 
     //
     // MODULE: Plot
     //
     analysis_script = Channel.fromPath(params.analysisscript, checkIfExists: true)
     PLOTTING (
-        bed_gff_pairs,
-        analysis_script)
+        bed_gff_pairs.combine(analysis_script)
+    )
     
     emit:
     outputtxt      = PLOTTING.out.outputtxt
