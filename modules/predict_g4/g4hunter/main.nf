@@ -10,7 +10,7 @@ process G4HUNTER {
     output:
     path "GC*.txt", emit: g4results
     path "results_${ref}.csv", emit: g4summary
-    tuple path("GC_${ref}.bed"), path(gff_file), val(ref), emit: g4hunterbed // Change this variable name
+    tuple path(fasta_file), path("GC_${ref}.bed"), path(gff_file), val(ref), emit: fasta_bed_gff_tuple // Change this variable name
 
     when:
     task.ext.when == null || task.ext.when

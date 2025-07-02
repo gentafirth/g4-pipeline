@@ -1,9 +1,9 @@
 process CLUSTER_GENES {
     tag "Clustering genes using Roary"
-    label 'process_low'
+    label 'process_high'
 
     input:
-    tuple path(gff_file), path(protein_file), val(temporary)
+    path gff3_files // List of GFF3 files from COMBINE_GFF_FASTA
 
     output:
     path "clustered_gene_dictionary.csv", emit: clustered_gene_dictionary
@@ -14,7 +14,8 @@ process CLUSTER_GENES {
     script:
     """
     echo "Hello Process"
-    echo ${gff_file} > clustered_gene_dictionary.csv
+    roary -f ./roary_output -e -n -v ${gff3_files}
+    touch clustered_gene_dictionary.csv
     """
 
 }

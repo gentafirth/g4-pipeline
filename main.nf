@@ -19,7 +19,7 @@ include { DATA_ANALYSIS } from './workflows/data_analysis.nf'
 workflow {
 
     //
-    // Create input channel from genomes with paired GFF files
+    // Create input channel from genomes with paired GFF and protein files
     //
     genomes_ch = Channel
         .fromPath(params.genomes, checkIfExists: true)
@@ -33,7 +33,7 @@ workflow {
             def gff_files = file(gff_pattern, type: 'file')
             def gff_file = gff_files.size() > 0 ? gff_files[0] : null
             
-            // Return tuple with fasta, gff (or null), and reference
+            // Return tuple with fasta, gff, protein (or null), and reference
             tuple(fasta, gff_file, ref)
         }
 
@@ -47,7 +47,7 @@ workflow {
     //
     if ( params.run_analysis ) {
         DATA_ANALYSIS ( 
-            PREDICT_G4.out.g4hunterbed,
+            PREDICT_G4.out.fasta_bed_gff_tuple,
             PREDICT_G4.out.g4summary
         )
     }
