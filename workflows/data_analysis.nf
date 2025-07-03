@@ -18,6 +18,7 @@ workflow DATA_ANALYSIS {
     take:
     fasta_bed_gff_tuple // channel: [ path(fasta), path(bed), path(gff), val(ref) ]
     summary_csvs  // channel: [ path(csv) ]
+    presence_absence_matrix
     
     main:
 
@@ -35,7 +36,9 @@ workflow DATA_ANALYSIS {
     //
     analysis_script = Channel.fromPath(params.analysisscript, checkIfExists: true)
     PLOTTING (
-        fasta_bed_gff_tuple.combine( analysis_script )
+        fasta_bed_gff_tuple.map{ fasta, bed, gff, ref -> bed }.collect(),
+        presence_absence_matrix,
+        analysis_script
     )
     
     emit:

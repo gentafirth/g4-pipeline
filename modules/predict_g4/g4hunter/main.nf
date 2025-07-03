@@ -10,7 +10,7 @@ process G4HUNTER {
     output:
     path "GC*.txt", emit: g4results
     path "results_${ref}.csv", emit: g4summary
-    tuple path(fasta_file), path("GC_${ref}.bed"), path(gff_file), val(ref), emit: fasta_bed_gff_tuple // Change this variable name
+    tuple path(fasta_file), path("${fasta_file.baseName}.bed"), path(gff_file), val(ref), emit: fasta_bed_gff_tuple // Change this variable name
 
     when:
     task.ext.when == null || task.ext.when
@@ -39,13 +39,13 @@ process G4HUNTER {
     
     python '${params.g4hunter2bed}' \\
         --input *-Merged.txt \\
-        --output GC_${ref}.bed
+        --output ${fasta_file.baseName}.bed
     """
 
     stub:
     """
-    touch GC_${ref}.txt
+    touch ${ref}.txt
     touch results_${ref}.csv
-    touch GC_${ref}.bed
+    touch ${ref}.bed
     """
 }

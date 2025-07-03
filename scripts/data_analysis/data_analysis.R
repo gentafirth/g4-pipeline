@@ -1,18 +1,96 @@
+library(dplyr)
+library(stringr)
 library(GenomicRanges)
-library(rtracklayer)
-library(GenomicFeatures)
-library(BiocParallel)
-library(ComplexHeatmap)
-library(circlize)
-library(optparse)
+library(data.table)
+library(EnrichedHeatmap)
 
-option_list <- list(
-  make_option(c("-i", "--input"), type="character", help="Input file name", metavar="FILE")
+gene_table <- fread("gene_presence_absence.tsv")
+
+# If needed: Remove the first column
+df_long <- gene_table %>% select(-Reference) %>% t() %>% as.data.frame()
+colnames(df_long) <- "info"
+df_long$ref <- rownames(df_long)
+rownames(df_long) <- NULL
+
+parsed <- df_long %>%
+  mutate(
+    info_clean = str_remove_all(info, "[()]"),
+    seqname = str_extract(info_clean, "^[^,]+"),
+    strand = str_extract(info_clean, ",(minus|plus),") %>% str_remove_all(","),
+    start = as.numeric(str_extract(info_clean, ",[0-9]+,") %>% str_remove_all(",")),
+    end = as.numeric(str_extract(info_clean, ",[0-9]+$") %>% str_remove_all(",")),
+    strand = ifelse(strand == "plus", "+", "-"),
+    new_start = pmin(start, end),
+    new_end = pmax(start, end)
+  )
+
+# Create concatenated seqnames
+concat_seqnames <- paste(parsed$seqname, parsed$ref, sep = "_")
+
+# Build GRanges with concatenated seqnames
+strains <- GRanges(
+  seqnames = concat_seqnames,
+  ranges = IRanges(start = parsed$new_start, end = parsed$new_end),
+  strand = parsed$strand
 )
 
-opt <- parse_args(OptionParser(option_list = option_list))
+# Optionally set names to something meaningful, e.g. just parsed$ref or parsed$seqname
+names(strains) <- parsed$ref
 
-input_file <- opt$input
+strains
 
-cat("Input file is:", input_file, "\n")
+tss = promoters(strains, upstream = 0, downstream = 1)
 
+# Function to read a single BED file into GRanges with modified seqnames
+read_bed_with_concat_seqname <- function(ref_name, bed_dir = ".") {
+  bed_file <- file.path(bed_dir, paste0(ref_name, ".bed"))
+  if (!file.exists(bed_file)) {
+    warning(paste("BED file not found:", bed_file))
+    return(NULL)
+  }
+  
+  # Read the BED file with fread; expect at least 6 columns:
+  # chr, start, end, ..., coverage (5th column), strand (6th column)
+  bed_dt <- fread(bed_file, header = FALSE, col.names = c("chr", "start", "end", "unused", "coverage", "strand"))
+  
+  # Convert coverage to numeric, just in case
+  bed_dt[, coverage := as.numeric(coverage)]
+  
+  # Create seqnames by concatenating BED chr and the ref_name, separated by _
+  seqnames_concat <- paste0(bed_dt$chr, "_", ref_name)
+  
+  # Build GRanges
+  gr <- GRanges(
+    seqnames = seqnames_concat,
+    ranges = IRanges(start = bed_dt$start + 1, end = bed_dt$end), # BED is 0-based start, half-open; GRanges is 1-based closed
+    strand = "*",  # Strand is '.' in your bed; set to "*" (unknown)
+    coverage = bed_dt$coverage
+  )
+  
+  return(gr)
+}
+
+# Directory where your BED files are stored, change if needed
+bed_dir <- "."
+
+# Read all BED files and combine
+bed_gr_list <- lapply(parsed$ref, read_bed_with_concat_seqname, bed_dir = bed_dir)
+
+# Remove any NULLs (missing BED files)
+bed_gr_list <- bed_gr_list[!sapply(bed_gr_list, is.null)]
+
+# Concatenate all into a master GRanges object
+master_gr <- do.call(c, bed_gr_list)
+
+# Take absolute value of coverage
+mcols(master_gr)$coverage <- abs(mcols(master_gr)$coverage)
+
+master_gr
+
+mat1 = normalizeToMatrix(master_gr, tss, value_column = "coverage", 
+    extend = 5000, mean_mode = "w0", w = 50, smooth = TRUE)
+mat1
+
+pdf("PQSs_heatmap.pdf", width = 8, height = 6)
+EnrichedHeatmap(mat1, col = c("white", "red"), name = "PQSs")
+dev.off()

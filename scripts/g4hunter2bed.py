@@ -34,14 +34,14 @@ def consolidate_txt_to_bed(input_file, output_file):
             # Process the previous block (if any)
             if (chrom) and (len(block) >= 2):
                 for data_line in block[1:]:  # Skip the 2 header lines
-                    parts = data_line.split('\t')
+                    parts = [p.strip() for p in data_line.split('\t')]
                     if len(parts) < 5:
                         print(f"Skipping malformed line in {chrom}: {data_line}")
                         continue
                     start, end, score = parts[0], parts[1], parts[4]
                     bed_rows.append([chrom, start, end, '', score, '.'])
             # Start a new block
-            chrom = line.lstrip('>')
+            chrom = line.lstrip('>').strip()
             block = []
         else:
             block.append(line)
@@ -49,7 +49,7 @@ def consolidate_txt_to_bed(input_file, output_file):
     # Process the last block
     if (chrom) and (len(block) >= 2):
         for data_line in block[1:]:
-            parts = data_line.split('\t')
+            parts = [p.strip() for p in data_line.split('\t')]
             if len(parts) < 5:
                 print(f"Skipping malformed line in {chrom}: {data_line}")
                 continue
@@ -60,10 +60,8 @@ def consolidate_txt_to_bed(input_file, output_file):
     bed_df = pd.DataFrame(bed_rows, columns=['chrom', 'start', 'end', 'name', 'score', 'strand'])
     bed_df.to_csv(output_file, sep='\t', header=False, index=False)
 
-
 def main():
     args = parse_args()
-    # Convert the input .txt file to a .bed file
     consolidate_txt_to_bed(args.input, args.output)
 
 if __name__ == "__main__":

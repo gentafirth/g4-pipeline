@@ -22,10 +22,10 @@ workflow GENE_MATRIX {
 
     main:
     //
-    // Extract fasta files from tuples for concatenation
+    // Extract fasta and gff files from tuples for concatenation
     //
     fasta_files_ch = genome_files.map { fasta, gff, ref -> fasta }
-    
+
     //
     // MODULE: Concatenate all genome files with prefixed headers
     //
@@ -47,9 +47,10 @@ workflow GENE_MATRIX {
     //
     // MODULE: Parse BLAST results and create presence/absence matrix
     //
+    parse_blast = Channel.fromPath(params.parse_blast, checkIfExists: true)
     PARSE_RESULTS ( 
         BLAST_QUERIES.out.blast_results,
-        fasta_files_ch.collect()
+        parse_blast
     )
 
     emit:

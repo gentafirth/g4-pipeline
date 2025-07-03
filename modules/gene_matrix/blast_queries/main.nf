@@ -14,17 +14,14 @@ process BLAST_QUERIES {
 
     script:
     def blast_cmd = params.blast_type == 'blastp' ? 'blastp' : 'blastn'
-    """
-    ${blast_cmd} \\
-        -query ${query_file} \\
-        -db genomes_db \\
-        -out blast_results.tsv \\
-        -outfmt "6 qseqid sseqid pident length qlen slen evalue bitscore" \\
-        -evalue ${params.evalue} \\
-        -max_target_seqs ${params.max_target_seqs} \\
-        -num_threads ${task.cpus}
-    
-    echo "BLAST search completed"
-    echo "Number of hits: \$(wc -l < blast_results.tsv)"
-    """
+  """
+  ${blast_cmd} \
+    -query ${query_file} \
+    -db genomes_db \
+    -out blast_results.tsv \
+    -outfmt "6 qseqid sseqid pident length qlen slen evalue bitscore sstart send sstrand" \
+    -evalue ${params.evalue} \
+    -max_target_seqs ${params.max_target_seqs} \
+    -num_threads ${task.cpus}
+  """
 }

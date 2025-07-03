@@ -5,11 +5,10 @@ channels:
   - defaults
 dependencies:
   - r-base
-  - r-biocmanager
-  - bioconductor-genomicranges
+  - r-data.table
+  - r-stringr
+  - bioconductor-enrichedheatmap
   - bioconductor-rtracklayer
-  - bioconductor-genomicfeatures
-  - bioconductor-biocparallel
-  - bioconductor-complexheatmap
   - r-circlize
-  - r-optparse
+  - bioconductor-complexheatmap
+  - r-tidyverse
