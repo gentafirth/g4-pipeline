@@ -37,6 +37,13 @@ workflow {
             // Return tuple with fasta, gff, and reference
             tuple(fasta, gff_file, ref)
         }
+        .filter { fasta, gff_file, ref ->
+            if (gff_file == null) {
+                log.warn "No GFF file found for ${ref}, skipping..."
+                return false
+            }
+            return true
+        }
 
     // Channel for query file
     query_file_ch = Channel
