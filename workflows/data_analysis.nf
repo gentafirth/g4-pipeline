@@ -6,8 +6,6 @@
 
 include { PLOTTING          } from '../modules/data_analysis/plotting/main'
 include { MERGE_SUMMARIES   } from '../modules/data_analysis/merge_summaries/main'
-include { COMBINE_GFF_FASTA } from '../modules/data_analysis/combine_gff_fasta/main'
-include { CLUSTER_GENES     } from '../modules/data_analysis/cluster_genes/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -31,17 +29,6 @@ workflow DATA_ANALYSIS {
         summary_csvs.collect(), 
         merge_script
     )
-
-    //
-    // MODULE: Combine GFF and AA files per strain (parallel processing)
-    //
-    addsequence_script = Channel.fromPath(params.addsequence, checkIfExists: true)
-    COMBINE_GFF_FASTA ( fasta_bed_gff_tuple.combine( addsequence_script ) )
-    
-    //
-    // MODULE: Cluster genes using all combined GFF3 files
-    //
-    CLUSTER_GENES ( COMBINE_GFF_FASTA.out.combined_gff.collect() )
 
     //
     // MODULE: Plot

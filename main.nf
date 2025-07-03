@@ -7,8 +7,9 @@ nextflow.enable.dsl=2
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { PREDICT_G4    } from './workflows/predict_g4'
-include { DATA_ANALYSIS } from './workflows/data_analysis.nf'
+include { GENERATE_PANGENOME } from './workflows/generate_pangenome.nf'
+include { PREDICT_G4         } from './workflows/predict_g4'
+include { DATA_ANALYSIS      } from './workflows/data_analysis.nf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -36,9 +37,33 @@ workflow {
             // Return tuple with fasta, gff, protein (or null), and reference
             tuple(fasta, gff_file, ref)
         }
+        
+    //
+    // WORKFLOW: Generate Pangenome Reference
+    //
+    if ( params.pangenome_ref ) {
+        log.info "Using provided pangenome reference: ${params.pan_genome_ref}"
+        log.info "This method is not recommended. Please use pipeline generated pangenome reference using --generate_pangenome"
+        pan_genome_ch = Channel.fromPath(params.pan_genome_ref)
+    } else if ( params.generate_pangenome ) {
+        log.info "Forcful generating new pan genome reference from input genomes"
+        if ( file( params.pangenome_path ).exists() ) {
+            log.info "Existing pangenome reference folder was found and deleted"
+            file(params.pangenome_path).delete()
+        }
+        pan_genome_ch = GENERATE_PANGENOME(genomes_ch)
+    } else if ( file( params.pangenome_path ).exists() ) {
+        log.info "Found existing pangenome reference: ${params.pangenome_path}"
+        log.info "To regenerate, delete the file or use --generate_pangenome"
+        pan_genome_ch = Channel.fromPath(params.pangenome_path)
+    } else {
+        log.info "No pangenome reference was detected and no pangenome was provided"
+        log.info "Generating new pan genome reference from input genomes"
+        pan_genome_ch = GENERATE_PANGENOME(genomes_ch)
+    }
 
     //
-    // WORKFLOW: Run G4Hunter pipeline
+    // WORKFLOW: Run G4 prediction pipeline
     //
     PREDICT_G4 ( genomes_ch )
     

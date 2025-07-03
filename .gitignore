@@ -4,4 +4,5 @@
 .nextflow.log*
 results/
 work/
+pangenome_reference/
 clear.sh

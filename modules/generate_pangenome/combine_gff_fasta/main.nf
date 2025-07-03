@@ -3,7 +3,7 @@ process COMBINE_GFF_FASTA {
     label 'process_low'
 
     input:
-    tuple path(fasta_file), path(bed_file), path(gff_file), val(ref), path(addsequence_script)
+    tuple path(fasta_file), path(gff_file), val(ref), path(addsequence_script) // channel: [ path(fasta), path(gff), val(ref), path(addsequence_script) ]
 
     output:
     path("${ref}.gff"), emit: combined_gff
