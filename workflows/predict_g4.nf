@@ -22,7 +22,13 @@ workflow PREDICT_G4 {
     //
     // MODULE: Run G4Hunter analysis
     //
-    G4HUNTER ( genomes )
+    g4script = Channel.fromPath(params.g4script, checkIfExists: true)
+    g4dataproc = Channel.fromPath(params.g4dataproc, checkIfExists: true)
+    g4hunter2bed = Channel.fromPath(params.g4hunter2bed, checkIfExists: true)
+    // Combine all scripts into a single tuple
+    scripts_tuple = g4script.combine(g4dataproc).combine(g4hunter2bed)
+    // Then combine with genomes
+    G4HUNTER(genomes.combine(scripts_tuple))
     
     emit:
     g4results      = G4HUNTER.out.g4results      // channel: [ path(txt) ]

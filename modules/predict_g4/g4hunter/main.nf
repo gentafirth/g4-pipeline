@@ -5,7 +5,7 @@ process G4HUNTER {
     publishDir "${params.outdir}/${fasta_file.baseName}_${params.thresh_value}", mode: 'copy', pattern: "GC*.bed"
 
     input:
-    tuple path(fasta_file), path(gff_file), val(ref)
+    tuple path(fasta_file), path(gff_file), val(ref), path(g4script), path(g4dataproc), path(g4hunter2bed)
 
     output:
     path "GC*.txt", emit: g4results
@@ -20,7 +20,7 @@ process G4HUNTER {
 
     """
     echo "Running G4Hunter on ${fasta_file}"
-    python '${params.g4script}' \\
+    python '${g4script}' \\
         -i ${fasta_file} \\
         -o . \\
         -w ${params.window} \\
@@ -30,14 +30,14 @@ process G4HUNTER {
     mv Results_*/*-Merged.txt .
     rm -r Results_*/
     
-    python '${params.g4dataproc}' \\
+    python '${g4dataproc}' \\
         -w ${params.window} \\
         -t ${params.thresh_value} \\
         -f *-Merged.txt \\
         -g ${fasta_file} \\
         -r ${ref} > results_${ref}.csv
     
-    python '${params.g4hunter2bed}' \\
+    python '${g4hunter2bed}' \\
         --input *-Merged.txt \\
         --output ${fasta_file.baseName}.bed
     """
