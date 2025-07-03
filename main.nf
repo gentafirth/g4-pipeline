@@ -29,20 +29,8 @@ workflow {
             // genomes/K_pneumoniae/GCF_xxx/…/GCF_xxx_ASM…_genomic.fna
             def ref = fasta.getParent().getName()
             
-            // Find corresponding .gff file in the same directory
-            def gff_pattern = fasta.getParent().toString() + "/*.gff*"
-            def gff_files = file(gff_pattern, type: 'file')
-            def gff_file = gff_files.size() > 0 ? gff_files[0] : null
-            
             // Return tuple with fasta, gff, and reference
-            tuple(fasta, gff_file, ref)
-        }
-        .filter { fasta, gff_file, ref ->
-            if (gff_file == null) {
-                log.warn "No GFF file found for ${ref}, skipping..."
-                return false
-            }
-            return true
+            tuple(fasta, ref)
         }
 
     // Channel for query file

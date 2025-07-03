@@ -15,7 +15,7 @@ include { G4HUNTER      } from '../modules/predict_g4/g4hunter/main'
 workflow PREDICT_G4 {
     
     take:
-    genomes // channel: [ path(fasta), path(gff), val(ref) ]
+    genomes // channel: [ path(fasta), val(ref) ]
     
     main:
     

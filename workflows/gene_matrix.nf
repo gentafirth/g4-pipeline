@@ -17,14 +17,14 @@ include { PARSE_RESULTS  } from '../modules/gene_matrix/parse_results/main'
 
 workflow GENE_MATRIX {
     take:
-    genome_files    // channel: [ tuple(path(fasta), path(gff), val(ref)), ... ]
+    genome_files    // channel: [ tuple(path(fasta), val(ref)), ... ]
     query_file      // channel: path(queries.fna)
 
     main:
     //
     // Extract fasta and gff files from tuples for concatenation
     //
-    fasta_files_ch = genome_files.map { fasta, gff, ref -> fasta }
+    fasta_files_ch = genome_files.map { fasta, ref -> fasta }
 
     //
     // MODULE: Concatenate all genome files with prefixed headers

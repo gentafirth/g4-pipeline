@@ -5,12 +5,12 @@ process G4HUNTER {
     publishDir "${params.outdir}/${fasta_file.baseName}_${params.thresh_value}", mode: 'copy', pattern: "GC*.bed"
 
     input:
-    tuple path(fasta_file), path(gff_file), val(ref), path(g4script), path(g4dataproc), path(g4hunter2bed)
+    tuple path(fasta_file), val(ref), path(g4script), path(g4dataproc), path(g4hunter2bed)
 
     output:
     path "GC*.txt", emit: g4results
     path "results_${ref}.csv", emit: g4summary
-    tuple path(fasta_file), path("${fasta_file.baseName}.bed"), path(gff_file), val(ref), emit: fasta_bed_gff_tuple // Change this variable name
+    tuple path(fasta_file), path("${fasta_file.baseName}.bed"), val(ref), emit: fasta_bed_gff_tuple // Change this variable name
 
     when:
     task.ext.when == null || task.ext.when
