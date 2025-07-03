@@ -1,6 +1,6 @@
 process BLAST_QUERIES {
     tag "Running BLAST search"
-    label 'process_medium'
+    label 'process_high'
 
     input:
     path query_file

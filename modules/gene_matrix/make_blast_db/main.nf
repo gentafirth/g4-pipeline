@@ -1,6 +1,6 @@
 process MAKE_BLAST_DB {
     tag "Creating BLAST database"
-    label 'process_low'
+    label 'process_medium'
 
     input:
     path fasta_file
