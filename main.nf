@@ -37,7 +37,8 @@ workflow {
             // Return tuple with fasta, gff, protein (or null), and reference
             tuple(fasta, gff_file, ref)
         }
-        
+
+    /*  
     //
     // WORKFLOW: Generate Pangenome Reference
     //
@@ -61,6 +62,7 @@ workflow {
         log.info "Generating new pan genome reference from input genomes"
         pan_genome_ch = GENERATE_PANGENOME(genomes_ch)
     }
+    */
 
     //
     // WORKFLOW: Run G4 prediction pipeline
