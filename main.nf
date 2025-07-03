@@ -8,6 +8,7 @@ nextflow.enable.dsl=2
 */
 
 include { GENERATE_PANGENOME } from './workflows/generate_pangenome.nf'
+include { GENE_MATRIX        } from './workflows/gene_matrix.nf'
 include { PREDICT_G4         } from './workflows/predict_g4'
 include { DATA_ANALYSIS      } from './workflows/data_analysis.nf'
 
@@ -34,9 +35,13 @@ workflow {
             def gff_files = file(gff_pattern, type: 'file')
             def gff_file = gff_files.size() > 0 ? gff_files[0] : null
             
-            // Return tuple with fasta, gff, protein (or null), and reference
+            // Return tuple with fasta, gff, and reference
             tuple(fasta, gff_file, ref)
         }
+
+    // Channel for query file
+    query_file_ch = Channel
+        .fromPath(params.query_fasta, checkIfExists: true)
 
     /*  
     //
@@ -63,6 +68,14 @@ workflow {
         pan_genome_ch = GENERATE_PANGENOME(genomes_ch)
     }
     */
+
+    //
+    // WORKFLOW: Run Gene Presence/Absence Analysis
+    //
+    GENE_MATRIX ( 
+        genomes_ch,
+        query_file_ch
+    )
 
     //
     // WORKFLOW: Run G4 prediction pipeline
