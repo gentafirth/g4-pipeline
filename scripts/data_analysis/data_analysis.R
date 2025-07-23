@@ -94,12 +94,14 @@ gene_strands <- strand_lookup[ mcols(master_gr)$ref ]
 is_minus <- gene_strands == "-"
 mcols(master_gr)$coverage[is_minus] <- - mcols(master_gr)$coverage[is_minus]
 
-master_gr
+mcols(master_gr)$coverage <- abs(mcols(master_gr)$coverage)
 
 mat1 = normalizeToMatrix(master_gr, tss, value_column = "coverage",
     extend = 5000, mean_mode = "w0", w = 10)
 mat1
 
-pdf("PQSs_heatmap.pdf", width = 3, height = 6)
-EnrichedHeatmap(mat1, col = c("blue", "white", "red"), name = "PQSs")
+#Here is another comment to force a new checksum
+
+pdf("PQSs_heatmap.pdf", width = 8, height = 6)
+EnrichedHeatmap(mat1, col = c("white", "red"), name = "PQSs")
 dev.off()
