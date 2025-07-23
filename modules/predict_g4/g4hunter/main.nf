@@ -1,6 +1,6 @@
 process G4HUNTER {
     tag "G4Hunter: ${ref}"
-    label 'process_medium'
+    label 'process_high'
     
     publishDir "${params.outdir}/${fasta_file.baseName}_${params.thresh_value}", mode: 'copy', pattern: "GC*.bed"
 

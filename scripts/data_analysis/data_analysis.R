@@ -24,6 +24,8 @@ parsed <- df_long %>%
     new_end = pmax(start, end)
   )
 
+strand_lookup <- setNames(parsed$strand, parsed$ref)
+
 # Create concatenated seqnames
 concat_seqnames <- paste(parsed$seqname, parsed$ref, sep = "_")
 
@@ -48,17 +50,17 @@ read_bed_with_concat_seqname <- function(ref_name, bed_dir = ".") {
     warning(paste("BED file not found:", bed_file))
     return(NULL)
   }
-  
+
   # Read the BED file with fread; expect at least 6 columns:
   # chr, start, end, ..., coverage (5th column), strand (6th column)
   bed_dt <- fread(bed_file, header = FALSE, col.names = c("chr", "start", "end", "unused", "coverage", "strand"))
-  
+
   # Convert coverage to numeric, just in case
   bed_dt[, coverage := as.numeric(coverage)]
-  
+
   # Create seqnames by concatenating BED chr and the ref_name, separated by _
   seqnames_concat <- paste0(bed_dt$chr, "_", ref_name)
-  
+
   # Build GRanges
   gr <- GRanges(
     seqnames = seqnames_concat,
@@ -66,7 +68,7 @@ read_bed_with_concat_seqname <- function(ref_name, bed_dir = ".") {
     strand = "*",  # Strand is '.' in your bed; set to "*" (unknown)
     coverage = bed_dt$coverage
   )
-  
+  mcols(gr)$ref <- ref_name
   return(gr)
 }
 
@@ -83,14 +85,21 @@ bed_gr_list <- bed_gr_list[!sapply(bed_gr_list, is.null)]
 master_gr <- do.call(c, bed_gr_list)
 
 # Take absolute value of coverage
-mcols(master_gr)$coverage <- abs(mcols(master_gr)$coverage)
+#mcols(master_gr)$coverage <- abs(mcols(master_gr)$coverage)
+
+# look up each range’s gene/ref from the metadata column
+gene_strands <- strand_lookup[ mcols(master_gr)$ref ]
+
+# flip sign only for minus strand, leave everything else exactly as read
+is_minus <- gene_strands == "-"
+mcols(master_gr)$coverage[is_minus] <- - mcols(master_gr)$coverage[is_minus]
 
 master_gr
 
-mat1 = normalizeToMatrix(master_gr, tss, value_column = "coverage", 
-    extend = 5000, mean_mode = "w0", w = 50, smooth = TRUE)
+mat1 = normalizeToMatrix(master_gr, tss, value_column = "coverage",
+    extend = 5000, mean_mode = "w0", w = 10)
 mat1
 
-pdf("PQSs_heatmap.pdf", width = 8, height = 6)
-EnrichedHeatmap(mat1, col = c("white", "red"), name = "PQSs")
+pdf("PQSs_heatmap.pdf", width = 3, height = 6)
+EnrichedHeatmap(mat1, col = c("blue", "white", "red"), name = "PQSs")
 dev.off()
