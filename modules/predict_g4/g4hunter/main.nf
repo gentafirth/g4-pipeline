@@ -1,7 +1,7 @@
 process G4HUNTER {
     tag "G4Hunter: ${ref}"
     label 'process_high'
-    
+
     publishDir "${params.outdir}/${fasta_file.baseName}_${params.thresh_value}", mode: 'copy', pattern: "GC*.bed"
 
     input:
@@ -26,17 +26,17 @@ process G4HUNTER {
         -w ${params.window} \\
         -s ${params.thresh_value} \\
         ${args}
-    
+
     mv Results_*/*-Merged.txt .
     rm -r Results_*/
-    
+
     python '${g4dataproc}' \\
         -w ${params.window} \\
         -t ${params.thresh_value} \\
         -f *-Merged.txt \\
         -g ${fasta_file} \\
         -r ${ref} > results_${ref}.csv
-    
+
     python '${g4hunter2bed}' \\
         --input *-Merged.txt \\
         --output ${fasta_file.baseName}.bed
