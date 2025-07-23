@@ -6,8 +6,6 @@
 #SBATCH --cpus-per-task=8
 
 module load Nextflow/24.10.2
-module load Anaconda3/2024.02-1
-module load gcccore/10.2.0
-module load apptainer/1.0.3
+module load Miniconda3/23.10.0-1
 
 nextflow run main.nf -profile hpc
