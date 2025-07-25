@@ -16,6 +16,7 @@ process PARSE_RESULTS {
 
     script:
     """
+    mkdir separated/
     python3 ${parse_blast} \
       --blast-results blast_results.tsv \
       --identity ${params.identity} \

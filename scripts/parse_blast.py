@@ -70,7 +70,7 @@ def main():
 
     # 9) Write one TSV file per query
     for q in mat.index:
-        out_path = f"{q}.tsv"
+        out_path = f"separated/{q}.tsv"
         mat.loc[[q]].to_csv(out_path, sep="\t", index_label="Reference")
 
 
