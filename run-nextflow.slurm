@@ -6,6 +6,6 @@
 #SBATCH --cpus-per-task=8
 
 module load Nextflow/24.10.2
-module load Miniconda3/23.10.0-1
+module load Miniforge3/24.7.1-2
 
-nextflow run main.nf -profile hpc
+nextflow run main.nf -resume -profile hpc
