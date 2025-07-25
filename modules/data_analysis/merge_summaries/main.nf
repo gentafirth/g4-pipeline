@@ -17,8 +17,12 @@ process MERGE_SUMMARIES {
     script:
     def args = task.ext.args ?: ''
     """
-    echo "Processing files: ${result_files}"
-    python '${merge_script}' -l "${result_files}" -o ${params.species}_results.csv ${args}
+    tmp_list=\$(mktemp)
+    for f in ${result_files}; do
+        echo \$f
+    done > \$tmp_list
+    python ${merge_script} --listfile \$tmp_list -o "${params.species}_results.csv" ${args}
+    rm \$tmp_list
     """
 
     stub:

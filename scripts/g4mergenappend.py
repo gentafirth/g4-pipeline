@@ -7,10 +7,10 @@ def parse_args():
         description="Merging csv files and appending"
     )
     parser.add_argument(
-        '--list', '-l',
+        '--listfile', '-l',
         type=str,
         required=True,
-        help="List of items to merge"
+        help="Path to a file containing a list of CSV files to merge (one per line)"
     )
     parser.add_argument(
         '--output', '-o',
@@ -21,7 +21,6 @@ def parse_args():
     return parser.parse_args()
 
 def merge_csv_files(all_files, output_filename):
-
     all_df = []
     for f in all_files:
         df = pd.read_csv(f)
@@ -31,10 +30,13 @@ def merge_csv_files(all_files, output_filename):
 
 def main():
     args = parse_args()
-    result_list_dir = (args.list).split()
-    print(type(args.list))
-    print(result_list_dir)
-    merge_csv_files(result_list_dir, args.output)
+
+    # Read input files from listfile
+    with open(args.listfile, 'r') as file:
+        file_list = [line.strip() for line in file if line.strip()]
+
+    print(f"Merging {len(file_list)} files from {args.listfile}...")
+    merge_csv_files(file_list, args.output)
 
 if __name__ == "__main__":
     main()
