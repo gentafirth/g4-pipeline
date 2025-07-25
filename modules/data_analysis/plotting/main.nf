@@ -13,12 +13,11 @@ process PLOTTING {
     path "${matrix.baseName}_PQSs_heatmap.pdf", emit: pqs_heatmap
 
     script:
-    // def gff_arg = gff_file && gff_file.getName() != 'null' ? "-g ${gff_file}" : ""
     """
-    script:
-    // def gff_arg = gff_file && gff_file.getName() != 'null' ? "-g ${gff_file}" : ""
-    Rscript ${analysis_script}
+    # Run analysis with BED files and TSV file
+    Rscript ${analysis_script} ${matrix}
 
+    # Rename output to include TSV basename
     if [ -f "PQSs_heatmap.pdf" ]; then
         mv PQSs_heatmap.pdf ${matrix.baseName}_PQSs_heatmap.pdf
     fi

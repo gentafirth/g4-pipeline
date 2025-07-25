@@ -4,7 +4,14 @@ library(GenomicRanges)
 library(data.table)
 library(EnrichedHeatmap)
 
-gene_table <- fread("gene_presence_absence.tsv")
+args <- commandArgs(trailingOnly = TRUE)
+if (length(args) != 1) {
+  stop("Usage: Rscript data_analysis.R <gene_presence_absence.tsv> [bed_dir]\n",
+       "  <gene_presence_absence.tsv>  – path to your gene table (TSV)\n")
+}
+gene_table_file <- args[1]
+
+gene_table <- fread(gene_table_file)
 
 # If needed: Remove the first column
 df_long <- gene_table %>% select(-Reference) %>% t() %>% as.data.frame()

@@ -33,24 +33,20 @@ workflow DATA_ANALYSIS {
     )
 
     //
-    // MODULE: Plot
+    // MODULE: Plot - Run for each separated TSV file
     //
     analysis_script = Channel.fromPath(params.analysisscript, checkIfExists: true)
-
-    // Prepare bed files collection (reused for each plotting run)
     bed_files_collection = fasta_bed_gff_tuple.map{ fasta, bed, ref -> bed }.collect()
 
-    // Flatten separated files and run PLOTTING for each one
-    separated_blast_files
+    plotting_input = separated_blast_files
         .flatten()
-        .combine(bed_files_collection)
+        .combine(bed_files_collection.map { beds -> [beds] })  // Wrap in extra list to prevent flattening
         .combine(analysis_script)
-        .set { plotting_input }
 
     PLOTTING (
-        plotting_input.map { tsv_file, bed_collection, script -> bed_collection },
-        plotting_input.map { tsv_file, bed_collection, script -> tsv_file },
-        plotting_input.map { tsv_file, bed_collection, script -> script }
+        plotting_input.map { tsv_file, bed_list, script -> bed_list },
+        plotting_input.map { tsv_file, bed_list, script -> tsv_file },
+        plotting_input.map { tsv_file, bed_list, script -> script }
     )
 
     emit:
