@@ -9,7 +9,7 @@ process PARSE_RESULTS {
     path parse_blast
 
     output:
-    path "gene_presence_absence.tsv", emit: matrix
+    path "${params.species}_${params.thresh_value}_blast_results.tsv", emit: matrix
 
     when:
     task.ext.when == null || task.ext.when
@@ -20,6 +20,6 @@ process PARSE_RESULTS {
       --blast-results blast_results.tsv \
       --identity ${params.identity} \
       --coverage ${params.coverage} \
-      --output gene_presence_absence.tsv
+      --output ${params.species}_${params.thresh_value}_blast_results.tsv
     """
 }

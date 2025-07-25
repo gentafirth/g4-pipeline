@@ -4,8 +4,9 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { PLOTTING          } from '../modules/data_analysis/plotting/main'
-include { MERGE_SUMMARIES   } from '../modules/data_analysis/merge_summaries/main'
+include { PLOTTING              } from '../modules/data_analysis/plotting/main'
+include { MERGE_SUMMARIES       } from '../modules/data_analysis/merge_summaries/main'
+include { PREP_BLAST_RESULTS    } from '../modules/data_analysis/prep_blast_results/main.nf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -32,12 +33,19 @@ workflow DATA_ANALYSIS {
     )
 
     //
+    // MODULE: PREP_BLAST_RESULTS
+    //
+    PREP_BLAST_RESULTS (
+        presence_absence_matrix
+    )
+
+    //
     // MODULE: Plot
     //
     analysis_script = Channel.fromPath(params.analysisscript, checkIfExists: true)
     PLOTTING (
         fasta_bed_gff_tuple.map{ fasta, bed, ref -> bed }.collect(),
-        presence_absence_matrix,
+        PREP_BLAST_RESULTS.out.separated_matrix,
         analysis_script
     )
 
