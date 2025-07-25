@@ -39,7 +39,7 @@ workflow GENE_MATRIX {
     //
     // MODULE: Run BLAST search
     //
-    BLAST_QUERIES ( 
+    BLAST_QUERIES (
         query_file,
         MAKE_BLAST_DB.out.blast_db
     )
@@ -48,13 +48,14 @@ workflow GENE_MATRIX {
     // MODULE: Parse BLAST results and create presence/absence matrix
     //
     parse_blast = Channel.fromPath(params.parse_blast, checkIfExists: true)
-    PARSE_RESULTS ( 
+    PARSE_RESULTS (
         BLAST_QUERIES.out.blast_results,
         parse_blast
     )
 
     emit:
     presence_absence_matrix = PARSE_RESULTS.out.matrix
+    separated_blast_files  = PARSE_RESULTS.out.separated_files
     blast_results          = BLAST_QUERIES.out.blast_results
     concatenated_genomes   = CONCAT_GENOMES.out.concatenated_fasta
 }
