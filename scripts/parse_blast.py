@@ -68,5 +68,13 @@ def main():
 
     print(f"[OK] Wrote {args.output}: {len(queries)} × {len(genomes)}")
 
+    # 9) Write one TSV file per query
+    for q in mat.index:
+        out_path = f"{q}.tsv"
+        mat.loc[[q]].to_csv(out_path, sep="\t", index_label="Reference")
+
+
+
+
 if __name__ == "__main__":
     main()
