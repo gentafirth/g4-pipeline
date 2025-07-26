@@ -2,7 +2,7 @@ process MERGE_SUMMARIES {
     tag "Merging G4Hunter summary results"
     label 'process_low'
 
-    publishDir "${params.outdir}/${params.species}", mode: 'copy'
+    publishDir "${params.outdir}/${params.species}_${params.thresh_value}", mode: 'copy'
 
     input:
     path result_files

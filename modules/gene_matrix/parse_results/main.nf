@@ -2,7 +2,7 @@ process PARSE_RESULTS {
     tag "Parsing BLAST results"
     label 'process_low'
 
-    publishDir "${params.outdir}/${params.species}", mode: 'copy', pattern: "*_blast_results.tsv"
+    publishDir "${params.outdir}/${params.species}_${params.thresh_value}", mode: 'copy', pattern: "*_blast_results.tsv"
 
     input:
     path blast_results

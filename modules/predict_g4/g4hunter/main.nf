@@ -2,7 +2,7 @@ process G4HUNTER {
     tag "G4Hunter: ${ref}"
     label 'process_high'
 
-    publishDir "${params.outdir}/${params.species}/${fasta_file.baseName}_${params.thresh_value}", mode: 'copy', pattern: "GC*.bed"
+    publishDir "${params.outdir}/${params.species}_${params.thresh_value}/putative_peaks/", mode: 'copy', pattern: "GC*.bed"
 
     input:
     tuple path(fasta_file), val(ref), path(g4script), path(g4dataproc), path(g4hunter2bed)
