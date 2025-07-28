@@ -9,4 +9,4 @@
 module load Nextflow/24.10.2
 module load Miniforge3/24.7.1-2
 
-nextflow run main.nf -resume -profile hpc
+nextflow run main.nf -resume -profile hpc --species 'S_pneumoniae'
