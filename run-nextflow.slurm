@@ -3,7 +3,7 @@
 #SBATCH --output=slurm-nextflow.out
 #SBATCH --error=slurm-nextflow.err
 #SBATCH --time=48:00:00
-#SBATCH --cpus-per-task=2
+#SBATCH --cpus-per-task=8
 #SBATCH --mem=64G
 
 module load Nextflow/24.10.2
