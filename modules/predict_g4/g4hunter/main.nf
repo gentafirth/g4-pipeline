@@ -1,6 +1,6 @@
 process G4HUNTER {
     tag "G4Hunter: ${ref}"
-    label 'process_high'
+    label 'process_low'
 
     publishDir "${params.outdir}/${params.species}_${params.thresh_value}/putative_peaks/", mode: 'copy', pattern: "GC*.bed"
 
