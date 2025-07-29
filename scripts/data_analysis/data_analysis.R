@@ -120,11 +120,11 @@ print("WE MADE IT HERE#############")
 #Here is another comment to force a new checksum
 
 
-col_title <- paste("Enrichment Heatmap of ", gene_table[1, 1], " (",analysed_genes, " out of ", total_genes, " were contain the gene of interest)", sep = "")
+col_title <- paste("Enrichment Heatmap of\n", gene_table[1, 1], "\n(",analysed_genes, " out of ", total_genes, " contain the gene of interest)", sep = "")
 
 file_name = paste(gene_table[1, 1], "_PQSs_heatmap.pdf", sep = "")
 
-pdf(file_name, width = 8, height = 6)
+pdf(file_name, width = 5, height = 6)
 EnrichedHeatmap(mat1, col = c("white", "red"), name = "PQSs",
     column_title = col_title)
 dev.off()
