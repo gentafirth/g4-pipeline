@@ -100,9 +100,6 @@ bed_gr_list <- bed_gr_list[!sapply(bed_gr_list, is.null)]
 # Concatenate all into a master GRanges object
 master_gr <- do.call(c, bed_gr_list)
 
-# Take absolute value of coverage
-#mcols(master_gr)$coverage <- abs(mcols(master_gr)$coverage)
-
 # look up each range’s gene/ref from the metadata column
 gene_strands <- strand_lookup[ mcols(master_gr)$ref ]
 
@@ -110,15 +107,11 @@ gene_strands <- strand_lookup[ mcols(master_gr)$ref ]
 is_minus <- gene_strands == "-"
 mcols(master_gr)$coverage[is_minus] <- - mcols(master_gr)$coverage[is_minus]
 
-mcols(master_gr)$coverage <- abs(mcols(master_gr)$coverage)
+#mcols(master_gr)$coverage <- abs(mcols(master_gr)$coverage)
 
 mat1 = normalizeToMatrix(master_gr, tss, value_column = "coverage",
     extend = 5000, mean_mode = "w0", w = 10)
 mat1
-
-print("WE MADE IT HERE#############")
-#Here is another comment to force a new checksum
-
 
 col_title <- paste("Enrichment Heatmap of\n", gene_table[1, 1], "\n(",analysed_genes, " out of ", total_genes, " contain the gene of interest)", sep = "")
 
