@@ -19,8 +19,9 @@ process MAKE_BLAST_DB {
         -dbtype ${dbtype} \\
         -out genomes_db \\
         -title "Concatenated Genomes Database"
-    
+
     echo "BLAST database created successfully"
     ls -la genomes_db*
+    rm ${fasta_file}
     """
 }

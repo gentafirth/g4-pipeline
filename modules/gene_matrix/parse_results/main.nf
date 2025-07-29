@@ -23,5 +23,8 @@ process PARSE_RESULTS {
       --identity ${params.identity} \
       --coverage ${params.coverage} \
       --output ${params.species}_${params.thresh_value}_blast_results.tsv
+
+      rm ${blast_results}
+      rm ${parse_blast}
     """
 }

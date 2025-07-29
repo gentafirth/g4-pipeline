@@ -23,6 +23,9 @@ process MERGE_SUMMARIES {
     done > \$tmp_list
     python ${merge_script} --listfile \$tmp_list -o "${params.species}_results.csv" ${args}
     rm \$tmp_list
+
+    rm ${result_files}
+    rm ${merge_script}
     """
 
     stub:

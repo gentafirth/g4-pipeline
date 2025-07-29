@@ -14,16 +14,16 @@ process CONCAT_GENOMES {
     script:
     """
     #!/bin/bash
-    
+
     touch all_genomes.fna
-    
+
     # Process each genome file
     for genome_file in ${fasta_file.join(' ')}; do
         # Extract genome ID from filename (remove .fna extension)
         genome_id=\$(basename "\$genome_file" .fna)
-        
+
         echo "Processing \$genome_id..."
-        
+
         # Add sequences with prefixed headers
         awk -v genome_id="\$genome_id" '
         /^>/ {
@@ -37,7 +37,8 @@ process CONCAT_GENOMES {
             print \$0
         }' "\$genome_file" >> all_genomes.fna
     done
-    
+
     echo "Concatenated \$(grep -c '^>' all_genomes.fna) sequences from ${fasta_file.size()} genome files"
+    rm ${fasta_file}
     """
 }

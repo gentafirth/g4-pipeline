@@ -23,5 +23,8 @@ process BLAST_QUERIES {
     -evalue ${params.evalue} \
     -max_target_seqs ${params.max_target_seqs} \
     -num_threads ${task.cpus}
+
+    rm ${query_file}
+    rm ${blast_db}
   """
 }

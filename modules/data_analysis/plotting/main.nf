@@ -21,5 +21,9 @@ process PLOTTING {
     #if [ -f "PQSs_heatmap.pdf" ]; then
     #    mv PQSs_heatmap.pdf ${matrix.baseName}_PQSs_heatmap.pdf
     #fi
+
+    rm ${putative_g4_bed}
+    rm ${matrix}
+    rm ${analysis_script}
     """
 }
