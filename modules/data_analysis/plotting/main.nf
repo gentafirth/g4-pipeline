@@ -18,8 +18,8 @@ process PLOTTING {
     Rscript ${analysis_script} ${matrix}
 
     # Rename output to include TSV basename
-    if [ -f "PQSs_heatmap.pdf" ]; then
-        mv PQSs_heatmap.pdf ${matrix.baseName}_PQSs_heatmap.pdf
-    fi
+    #if [ -f "PQSs_heatmap.pdf" ]; then
+    #    mv PQSs_heatmap.pdf ${matrix.baseName}_PQSs_heatmap.pdf
+    #fi
     """
 }

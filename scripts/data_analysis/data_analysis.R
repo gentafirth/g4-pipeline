@@ -13,6 +13,15 @@ gene_table_file <- args[1]
 
 gene_table <- fread(gene_table_file)
 
+total_genes <- ncol(gene_table)-1
+print(total_genes)
+# Drop any columns with NaN
+not_any_na <- function(x) all(!is.na(x))
+gene_table <- gene_table %>% select(where(not_any_na))
+
+analysed_genes <- ncol(gene_table)-1
+print(analysed_genes)
+
 # If needed: Remove the first column
 df_long <- gene_table %>% select(-Reference) %>% t() %>% as.data.frame()
 colnames(df_long) <- "info"
@@ -107,8 +116,15 @@ mat1 = normalizeToMatrix(master_gr, tss, value_column = "coverage",
     extend = 5000, mean_mode = "w0", w = 10)
 mat1
 
+print("WE MADE IT HERE#############")
 #Here is another comment to force a new checksum
 
-pdf("PQSs_heatmap.pdf", width = 8, height = 6)
-EnrichedHeatmap(mat1, col = c("white", "red"), name = "PQSs")
+
+col_title <- paste("Enrichment Heatmap of ", gene_table[1, 1], " (",analysed_genes, " out of ", total_genes, " were contain the gene of interest)", sep = "")
+
+file_name = paste(gene_table[1, 1], "_PQSs_heatmap.pdf", sep = "")
+
+pdf(file_name, width = 8, height = 6)
+EnrichedHeatmap(mat1, col = c("white", "red"), name = "PQSs",
+    column_title = col_title)
 dev.off()
