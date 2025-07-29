@@ -1,6 +1,6 @@
 process PLOTTING {
     tag "Analysing ${matrix.baseName}"
-    label 'process_low'
+    label 'process_medium'
 
     publishDir "${params.outdir}/${params.species}_${params.thresh_value}/plots/", mode: 'copy', pattern: "*_PQSs_heatmap.pdf"
 

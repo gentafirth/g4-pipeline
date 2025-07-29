@@ -3,6 +3,7 @@ library(stringr)
 library(GenomicRanges)
 library(data.table)
 library(EnrichedHeatmap)
+library(circlize)
 
 args <- commandArgs(trailingOnly = TRUE)
 if (length(args) != 1) {
@@ -117,7 +118,9 @@ col_title <- paste("Enrichment Heatmap of\n", gene_table[1, 1], "\n(",analysed_g
 
 file_name = paste(gene_table[1, 1], "_PQSs_heatmap.pdf", sep = "")
 
+col_fun = colorRamp2(c(-2, 0, 2), c("blue", "white", "red"))
+
 pdf(file_name, width = 5, height = 6)
-EnrichedHeatmap(mat1, col = c("white", "red"), name = "PQSs",
+EnrichedHeatmap(mat1, col = col_fun, name = "PQSs",
     column_title = col_title)
 dev.off()
