@@ -8,3 +8,5 @@ pangenome_reference/
 .ropeproject
 slurm-nextflow.*
 prep_query/
+tarballs/
+save-cache.txt
