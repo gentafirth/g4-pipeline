@@ -2,7 +2,7 @@ process PLOTTING {
     tag "Analysing ${matrix.baseName}"
     label 'process_medium'
 
-    publishDir "${params.outdir}/${params.species}_${params.thresh_value}/plots/", mode: 'copy', pattern: "*_PQSs_heatmap.pdf"
+    publishDir "${params.outdir}/${params.species}_${params.thresh_value}/plots/", mode: 'copy', pattern: "*_PQSs_heatmap.png"
 
     input:
     path putative_g4_bed
@@ -10,7 +10,7 @@ process PLOTTING {
     path analysis_script
 
     output:
-    path "${matrix.baseName}_PQSs_heatmap.pdf", emit: pqs_heatmap
+    path "${matrix.baseName}_PQSs_heatmap.png", emit: pqs_heatmap
 
     script:
     """
@@ -22,8 +22,9 @@ process PLOTTING {
     #    mv PQSs_heatmap.pdf ${matrix.baseName}_PQSs_heatmap.pdf
     #fi
 
-    rm ${putative_g4_bed}
-    rm ${matrix}
-    rm ${analysis_script}
+    #rm ${putative_g4_bed}
+    #rm ${matrix}
+    #rm ${analysis_script}
+    #rm *.pdf
     """
 }

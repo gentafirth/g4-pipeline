@@ -4,6 +4,7 @@ library(GenomicRanges)
 library(data.table)
 library(EnrichedHeatmap)
 library(circlize)
+library(pheatmap)
 
 args <- commandArgs(trailingOnly = TRUE)
 if (length(args) != 1) {
@@ -89,7 +90,6 @@ read_bed_with_concat_seqname <- function(ref_name, bed_dir = ".") {
   return(gr)
 }
 
-# Directory where your BED files are stored, change if needed
 bed_dir <- "."
 
 # Read all BED files and combine
@@ -104,23 +104,117 @@ master_gr <- do.call(c, bed_gr_list)
 # look up each range’s gene/ref from the metadata column
 gene_strands <- strand_lookup[ mcols(master_gr)$ref ]
 
-# flip sign only for minus strand, leave everything else exactly as read
-is_minus <- gene_strands == "-"
-mcols(master_gr)$coverage[is_minus] <- - mcols(master_gr)$coverage[is_minus]
+# 1. Define the window around the TSS
+window_size <- 5000
+num_cols <- 2 * window_size + 1 # Total columns for -5000 to +5000, including 0
 
-#mcols(master_gr)$coverage <- abs(mcols(master_gr)$coverage)
+# 2. Initialize an empty matrix for the heatmap
+# Use the names from the tss object for rows, or create generic ones if they don't exist.
+tss_names <- names(tss)
 
-mat1 = normalizeToMatrix(master_gr, tss, value_column = "coverage",
-    extend = 5000, mean_mode = "w0", w = 10)
-mat1
+heatmap_matrix <- matrix(0,
+                         nrow = length(tss),
+                         ncol = num_cols,
+                         dimnames = list(tss_names, -window_size:window_size))
 
+cat("Initialized a", nrow(heatmap_matrix), "x", ncol(heatmap_matrix), "matrix.\n")
+cat("Starting to process each TSS...\n")
+
+# 3. Loop through each TSS to create a row in the matrix
+for (i in 1:length(tss)) {
+
+  # Get information for the current TSS
+  current_tss <- tss[i]
+  tss_pos <- start(current_tss)
+  tss_chrom <- as.character(seqnames(current_tss))
+  tss_strand <- as.character(strand(current_tss))
+
+  # Define the search region (+/- 5000 bp) around the TSS
+  search_window <- GRanges(seqnames = tss_chrom,
+                           ranges = IRanges(start = tss_pos - window_size,
+                                            end = tss_pos + window_size))
+
+  # Find all motifs from your master list that fall within this window
+  overlapping_motifs <- subsetByOverlaps(master_gr, search_window, ignore.strand = TRUE)
+
+  # If no motifs are found in the window, the row correctly remains all zeros,
+  # so we can skip to the next TSS.
+  if (length(overlapping_motifs) == 0) {
+    next
+  }
+
+  # 4. Process each overlapping motif found for the current TSS
+  for (j in 1:length(overlapping_motifs)) {
+    motif <- overlapping_motifs[j]
+    motif_score <- motif$coverage
+
+    # Calculate the motif's position relative to the TSS
+    # This creates a vector of all base pairs covered by the motif
+    rel_positions <- (start(motif):end(motif)) - tss_pos
+
+    # --- Handle strand-specificity ---
+    if (tss_strand == "+") {
+      # For the positive strand, use positions and scores as they are
+      final_positions <- rel_positions
+      final_score <- motif_score
+    } else if (tss_strand == "-") {
+      # For the negative strand, reverse the relative positions and flip the score's sign
+      final_positions <- -rel_positions
+      final_score <- -motif_score
+    } else {
+      # If the TSS strand is not '+' or '-', skip it.
+      next
+    }
+
+    # 5. Place the score into the matrix
+
+    # Filter for positions that are actually within our -5000 to +5000 window
+    valid_indices <- which(final_positions >= -window_size & final_positions <= window_size)
+
+    if (length(valid_indices) > 0) {
+      # Get the final positions that fall within our defined window
+      positions_in_window <- final_positions[valid_indices]
+
+      # Convert the relative positions (e.g., -5000) to matrix column indices (e.g., 1)
+      matrix_cols <- positions_in_window + window_size + 1
+
+      # Assign the score to the corresponding cells in the matrix row
+      # Note: If motifs overlap, the score of the last processed motif will be used.
+      heatmap_matrix[i, matrix_cols] <- final_score
+    }
+  }
+
+  # Optional: Print progress
+  if (i %% 100 == 0) {
+    cat("Processed", i, "of", length(tss), "TSSs.\n")
+  }
+}
+
+cat("Finished processing all TSSs.\n")
+cat("The 'heatmap_matrix' is now ready for plotting.\n")
 col_title <- paste("Enrichment Heatmap of\n", gene_table[1, 1], "\n(",analysed_genes, " out of ", total_genes, " contain the gene of interest)", sep = "")
 
-file_name = paste(gene_table[1, 1], "_PQSs_heatmap.pdf", sep = "")
+file_name = paste(gene_table[1, 1], "_PQSs_heatmap.png", sep = "")
 
-col_fun = colorRamp2(c(-2, 0, 2), c("blue", "white", "red"))
+my_color_func <- colorRamp2(c(-2, 0, 2), c("blue", "lightyellow", "red"))
 
-pdf(file_name, width = 5, height = 6)
-EnrichedHeatmap(mat1, col = col_fun, name = "PQSs",
-    column_title = col_title)
-dev.off()
+# Generate a sequence of values to sample colors from
+# This creates a fine-grained sequence of breaks from -2 to 2.
+my_breaks <- seq(-2, 2, by = 0.01)
+
+# Apply the color function to the breaks to get a corresponding vector of colors
+my_colors <- my_color_func(my_breaks)
+
+phm <- pheatmap(heatmap_matrix, cluster_rows = TRUE, cluster_cols = FALSE, show_colnames = FALSE, main=col_title,color = my_colors,
+         breaks = my_breaks)
+
+
+
+save_pheatmap_png <- function(x, filename, width=1200, height=1000, res = 150) {
+  png(filename, width = width, height = height, res = res)
+  grid::grid.newpage()
+  grid::grid.draw(x$gtable)
+  dev.off()
+}
+
+save_pheatmap_png(phm, file_name)

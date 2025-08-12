@@ -13,3 +13,4 @@ dependencies:
   - r-circlize
   - bioconductor-complexheatmap
   - r-tidyverse
+  - r-pheatmap
