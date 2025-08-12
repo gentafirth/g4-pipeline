@@ -218,3 +218,51 @@ save_pheatmap_png <- function(x, filename, width=1200, height=1000, res = 150) {
 }
 
 save_pheatmap_png(phm, file_name)
+
+
+
+# Load the necessary libraries
+library(ggplot2)
+
+# Calculate the average of each column in the matrix
+average_values <- colMeans(heatmap_matrix)
+
+# Get the column names (which represent the positions)
+positions <- colnames(heatmap_matrix)
+
+# Create the data frame with 'Position' and 'Average_Value' columns
+df_line_plot <- data.frame(
+  Position = as.numeric(positions),
+  Average_Value = average_values
+)
+
+# Create the ggplot object
+p <- ggplot(df_line_plot, aes(x = Position, y = Average_Value, color = Average_Value)) +
+  # Create a line graph
+  geom_line(size = 1) +
+  # Define the custom color gradient
+  scale_color_gradientn(
+    #colors = c("blue", "lightyellow", "red"),
+    colors = c("red","red","red"),
+    values = scales::rescale(c(-2, 0, 2)),
+    limits = c(-2, 2),
+    name = "Average\nValue"
+  ) +
+  # Add a vertical dashed line at the TSS (Position 0)
+  geom_vline(xintercept = 0, linetype = "dashed", color = "black") +
+  # Add a horizontal dashed line at y=0
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey") +
+  # Set the titles and labels
+  labs(
+    title = "Average Enrichment Profile Around the TSS",
+    x = "Position Relative to TSS (bp)",
+    y = "Average Enrichment Score"
+  ) +
+  # Use a minimal theme for a cleaner look
+  theme_minimal()
+
+# Save the plot to a PNG file
+file_name = paste(gene_table[1, 1], "_PQSs_heatmap_averaged.png", sep = "")
+ggsave(file_name, plot = p, width = 8, height = 6, dpi = 150)
+
+cat("Line graph saved to 'average_enrichment_line_graph.png'")
