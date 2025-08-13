@@ -205,7 +205,7 @@ my_breaks <- seq(-2, 2, by = 0.01)
 # Apply the color function to the breaks to get a corresponding vector of colors
 my_colors <- my_color_func(my_breaks)
 
-phm <- pheatmap(heatmap_matrix, cluster_rows = TRUE, cluster_cols = FALSE, show_colnames = FALSE, main=col_title,color = my_colors,
+phm <- pheatmap(heatmap_matrix, cluster_rows = TRUE, cluster_cols = FALSE, show_colnames = FALSE, show_rownames = FALSE, main=col_title,color = my_colors,
          breaks = my_breaks)
 
 
