@@ -22,16 +22,20 @@ workflow DATA_ANALYSIS {
     separated_blast_files // channel: [ path(separated/*.tsv) ]
 
     main:
-
-    //
-    // MODULE: Merge summary results
-    //
-    merge_script = Channel.fromPath(params.g4mergenappend, checkIfExists: true)
-    MERGE_SUMMARIES (
-        summary_csvs.collect(),
-        merge_script
-    )
-
+    merged_results = null
+    if ( params.bed_files == '' ){
+        //
+        // MODULE: Merge summary results
+        //
+        merge_script = Channel.fromPath(params.g4mergenappend, checkIfExists: true)
+        MERGE_SUMMARIES (
+            summary_csvs.collect(),
+            merge_script
+        )
+        merged_results = MERGE_SUMMARIES.out.merged_results
+    } else {
+        merged_results = summary_csvs
+    }
     //
     // MODULE: Plot - Run for each separated TSV file
     //
@@ -51,5 +55,5 @@ workflow DATA_ANALYSIS {
 
     emit:
     pqs_heatmaps   = PLOTTING.out.pqs_heatmap.collect()
-    merged_results = MERGE_SUMMARIES.out.merged_results
+    merged_results
 }
