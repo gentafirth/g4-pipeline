@@ -38,10 +38,12 @@ workflow {
     //
     // WORKFLOW: Run Gene Presence/Absence Analysis
     //
-    GENE_MATRIX (
-        genomes_ch,
-        query_file_ch
-    )
+    if ( params.run_analysis ) {
+        GENE_MATRIX (
+            genomes_ch,
+            query_file_ch
+        )
+    }
 
     fasta_bed_gff_tuple = null
     g4_summary = null
